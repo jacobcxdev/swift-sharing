@@ -17,10 +17,10 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/combine-schedulers", from: "1.0.0"),
+    .package(url: "https://github.com/flote-works/combine-schedulers", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.3.0"),
     .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.5.1"),
+    .package(url: "https://github.com/flote-works/swift-dependencies", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-perception", "1.4.1"..<"3.0.0"),
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.4.3"),
