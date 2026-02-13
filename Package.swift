@@ -19,7 +19,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/flote-works/combine-schedulers", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.3.0"),
-    .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.0.0"),
+    .package(url: "https://github.com/flote-works/swift-custom-dump", from: "1.0.0"),
     .package(url: "https://github.com/flote-works/swift-dependencies", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.0.0"),
     .package(url: "https://github.com/flote-works/swift-perception", branch: "flote/service-app"),
