@@ -1,4 +1,4 @@
-#if canImport(AppKit) || canImport(UIKit) || canImport(WatchKit)
+#if canImport(AppKit) || canImport(UIKit) || canImport(WatchKit) || os(Android)
   import Dependencies
   @preconcurrency import Foundation
 
@@ -312,7 +312,7 @@
       self.key = key
       let store = store ?? defaultStore
       self.store = UncheckedSendable(store)
-      #if DEBUG
+      #if DEBUG && !os(Android)
         if store.responds(to: Selector(("_identifier"))),
           let suiteName = store.perform(Selector(("_identifier"))).takeUnretainedValue() as? String
         {
@@ -454,6 +454,12 @@
     public func subscribe(
       context: LoadContext<Value>, subscriber: SharedSubscriber<Value>
     ) -> SharedSubscription {
+      #if os(Android)
+      // Android's UserDefaults (SharedPreferences via Skip) doesn't support KVO.
+      // Return a no-op subscription; values are read correctly on load, and
+      // TCA's Observing wrapper handles Compose recomposition.
+      return SharedSubscription {}
+      #else
       let removeObserver: @Sendable () -> Void
       let keyContainsPeriod = key.contains(".")
       if keyContainsPeriod || key.hasPrefix("@") {
@@ -526,6 +532,7 @@
         removeObserver = { store.wrappedValue.removeObserver(observer, forKeyPath: key) }
       }
       return SharedSubscription(removeObserver)
+      #endif
     }
 
     public func save(_ value: Value, context _: SaveContext, continuation: SaveContinuation) {
@@ -537,6 +544,7 @@
       lookup.loadValue(from: store.wrappedValue, at: key, default: initialValue)
     }
 
+    #if !os(Android)
     private final class Observer: NSObject, Sendable {
       let didChange: @Sendable () -> Void
       init(didChange: @escaping @Sendable () -> Void) {
@@ -552,6 +560,7 @@
         self.didChange()
       }
     }
+    #endif
   }
 
   extension AppStorageKey: CustomStringConvertible {
@@ -619,6 +628,9 @@
   extension UserDefaults {
     public static var inMemory: UserDefaults {
       let suiteName: String
+      #if os(Android)
+      suiteName = "co.pointfree.Sharing.\(UUID().uuidString)"
+      #else
       // NB: Due to a bug in iOS 16 and lower, UserDefaults does not observe changes when using
       //     file-based suites. Go back to using temporary directory always when we drop iOS 16
       //     support.
@@ -627,6 +639,7 @@
       } else {
         suiteName = "\(NSTemporaryDirectory())co.pointfree.Sharing.\(UUID().uuidString)"
       }
+      #endif
       return UserDefaults(suiteName: suiteName)!
     }
   }
@@ -762,7 +775,7 @@
     }
   }
 
-  #if DEBUG
+  #if DEBUG && !os(Android)
     private let suites = Mutex<[String: ObjectIdentifier]>([:])
   #endif
 #endif
