@@ -7,7 +7,7 @@ import PerceptionCore
 #if canImport(Combine)
   import Combine
 #endif
-#if canImport(SwiftUI) && !os(Android)
+#if canImport(SwiftUI)
   import SwiftUI
 #endif
 
@@ -357,6 +357,8 @@ extension SharedReader: CustomDumpRepresentable {
       box.subscribe(state: _generation)
     }
   }
+#elseif canImport(SwiftUI)
+  extension SharedReader: DynamicProperty {}
 #endif
 
 // NB: While it would be ideal to make these conformances unavailable, these extensions would
