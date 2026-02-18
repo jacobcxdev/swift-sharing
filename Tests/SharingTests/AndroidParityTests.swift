@@ -130,3 +130,66 @@ final class AndroidParityTests: XCTestCase {
     XCTAssertEqual(info.age, 42)
   }
 }
+
+// MARK: - Category B: SwiftUI Integration (un-guarded code)
+
+#if canImport(SwiftUI)
+  import SwiftUI
+
+  /// Tests verifying that un-guarded SwiftUI integrations work correctly.
+  /// These exercise the same code paths used on Android via SkipSwiftUI.
+  @MainActor
+  final class SharedSwiftUIParityTests: XCTestCase {
+    func testSharedConformsToDynamicProperty() {
+      // Verify @Shared has DynamicProperty conformance (un-guarded in Shared.swift)
+      // by confirming the update() method exists on the type.
+      @Shared(.inMemory("dp_test_\(UUID())")) var value = 0
+      // DynamicProperty.update() is callable — this would fail to compile
+      // if the DynamicProperty conformance were guarded.
+      _value.update()
+      XCTAssertEqual(value, 0)
+    }
+
+    func testSharedReaderConformsToDynamicProperty() {
+      // Verify @SharedReader also has DynamicProperty conformance.
+      let key = "dp_reader_test_\(UUID())"
+      @Shared(.inMemory(key)) var source = 42
+      let reader = SharedReader($source)
+      // SharedReader.update() must be callable
+      reader.update()
+      XCTAssertEqual(reader.wrappedValue, 42)
+    }
+
+    func testSharedBindingConversion() {
+      // Verify Binding(Shared(...)) works — the SharedBinding.swift code.
+      @Shared(.inMemory("binding_test_\(UUID())")) var count = 0
+
+      let binding = Binding($count)
+
+      // Read through binding
+      XCTAssertEqual(binding.wrappedValue, 0)
+
+      // Write through binding updates the shared value
+      binding.wrappedValue = 99
+      XCTAssertEqual(count, 99)
+
+      // Write through shared updates binding
+      $count.withLock { $0 = 42 }
+      XCTAssertEqual(binding.wrappedValue, 42)
+    }
+
+    func testSharedBindingWithDynamicMember() {
+      // Verify Binding works with @Shared's dynamic member lookup.
+      struct Profile: Equatable {
+        var name: String = ""
+        var score: Int = 0
+      }
+
+      @Shared(.inMemory("binding_member_\(UUID())")) var profile = Profile()
+
+      let nameBinding = Binding($profile.name)
+      nameBinding.wrappedValue = "Blob"
+      XCTAssertEqual(profile.name, "Blob")
+    }
+  }
+#endif
