@@ -1,5 +1,9 @@
-#if canImport(Combine)
-  import Combine
+#if canImport(Combine) || canImport(OpenCombine)
+  #if canImport(Combine)
+    import Combine
+  #else
+    import OpenCombineShim
+  #endif
   import Foundation
 
   final class PassthroughRelay<Output>: Subject {

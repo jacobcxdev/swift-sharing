@@ -3,8 +3,10 @@ import Foundation
 import IdentifiedCollections
 import PerceptionCore
 
-#if canImport(Combine)
+#if canImport(Combine) || canImport(OpenCombine)
   import Combine
+#else
+  import OpenCombineShim
 #endif
 
 protocol Reference<Value>:
@@ -21,7 +23,7 @@ protocol Reference<Value>:
   var wrappedValue: Value { get }
   func load() async throws
   func touch()
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     var publisher: any Publisher<Value, Never> { get }
   #endif
 }
@@ -44,7 +46,7 @@ final class _BoxReference<Value>: MutableReference, Observable, Perceptible, @un
   private let _$perceptionRegistrar = PerceptionRegistrar(isPerceptionCheckingEnabled: false)
   private let lock = NSRecursiveLock()
 
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     private var value: Value {
       willSet {
         @Dependency(\.snapshots) var snapshots
@@ -173,7 +175,7 @@ final class _PersistentReference<Key: SharedReaderKey>:
   private let key: Key
   private let lock = NSRecursiveLock()
 
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     private var value: Key.Value {
       willSet {
         @Dependency(\.snapshots) var snapshots
@@ -476,7 +478,7 @@ final class _AppendKeyPathReference<
     base.touch()
   }
 
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     var publisher: any Publisher<Value, Never> {
       func open(_ publisher: some Publisher<Base.Value, Never>) -> any Publisher<Value, Never> {
         publisher.map(keyPath)
@@ -561,7 +563,7 @@ final class _ReadClosureReference<Base: Reference, Value>:
     base.touch()
   }
 
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     var publisher: any Publisher<Value, Never> {
       func open(_ publisher: some Publisher<Base.Value, Never>) -> any Publisher<Value, Never> {
         publisher.map(body)
@@ -615,7 +617,7 @@ final class _OptionalReference<Base: Reference<Value?>, Value>:
     base.touch()
   }
 
-  #if canImport(Combine)
+  #if canImport(Combine) || canImport(OpenCombine)
     var publisher: any Publisher<Value, Never> {
       func open(_ publisher: some Publisher<Value?, Never>) -> any Publisher<Value, Never> {
         publisher.compactMap { $0 }

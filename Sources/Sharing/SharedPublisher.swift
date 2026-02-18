@@ -1,5 +1,9 @@
-#if canImport(Combine)
-  import Combine
+#if canImport(Combine) || canImport(OpenCombine)
+  #if canImport(Combine)
+    import Combine
+  #else
+    import OpenCombineShim
+  #endif
 
   extension Shared {
     /// Returns a publisher that emits events when the underlying value changes.

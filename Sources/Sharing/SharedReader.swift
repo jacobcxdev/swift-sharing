@@ -4,8 +4,10 @@ import IdentifiedCollections
 import IssueReporting
 import PerceptionCore
 
-#if canImport(Combine)
+#if canImport(Combine) || canImport(OpenCombine)
   import Combine
+#else
+  import OpenCombineShim
 #endif
 #if canImport(SwiftUI)
   import SwiftUI
@@ -246,7 +248,7 @@ public struct SharedReader<Value> {
   final class Box: @unchecked Sendable {
     private let lock = NSRecursiveLock()
     private var _reference: any Reference<Value>
-    #if canImport(Combine)
+    #if canImport(Combine) || canImport(OpenCombine)
       let subject = PassthroughRelay<Value>()
       private var subjectCancellable: AnyCancellable
     #endif
@@ -263,14 +265,14 @@ public struct SharedReader<Value> {
         lock.lock()
         defer { lock.unlock() }
         yield &_reference
-        #if canImport(Combine)
+        #if canImport(Combine) || canImport(OpenCombine)
           subjectCancellable = _reference.publisher.subscribe(subject)
         #endif
       }
       set {
         lock.withLock {
           _reference = newValue
-          #if canImport(Combine)
+          #if canImport(Combine) || canImport(OpenCombine)
             subjectCancellable = _reference.publisher.subscribe(subject)
           #endif
         }
@@ -278,12 +280,12 @@ public struct SharedReader<Value> {
     }
     init(_ reference: any Reference<Value>) {
       self._reference = reference
-      #if canImport(Combine)
+      #if canImport(Combine) || canImport(OpenCombine)
         subjectCancellable = _reference.publisher.subscribe(subject)
       #endif
     }
     deinit {
-      #if canImport(Combine)
+      #if canImport(Combine) || canImport(OpenCombine)
         subjectCancellable.cancel()
       #endif
       #if canImport(SwiftUI) && !os(Android)
