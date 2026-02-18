@@ -26,6 +26,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.4.3"),
     .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.0.0"),
     .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.0"),
+    .package(url: "https://source.skip.tools/skip-fuse-ui.git", from: "1.0.0"),
   ],
   targets: [
     .target(
@@ -41,6 +42,7 @@ let package = Package(
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
         .product(name: "PerceptionCore", package: "swift-perception"),
         .product(name: "SkipFuse", package: "skip-fuse", condition: .when(platforms: [.android])),
+        .product(name: "SkipFuseUI", package: "skip-fuse-ui", condition: .when(platforms: [.android])),
       ],
       resources: [
         .process("PrivacyInfo.xcprivacy")
