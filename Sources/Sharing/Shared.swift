@@ -7,7 +7,7 @@ import PerceptionCore
 #if canImport(Combine)
   import Combine
 #endif
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(Android)
   import SwiftUI
 #endif
 
@@ -496,8 +496,6 @@ extension Shared: _CustomDiffObject {
       box.subscribe(state: _generation)
     }
   }
-#elseif canImport(SwiftUI)
-  extension Shared: DynamicProperty {}
 #endif
 
 // NB: While it would be ideal to make these conformances unavailable, these extensions would
