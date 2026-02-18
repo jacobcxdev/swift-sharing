@@ -257,7 +257,7 @@
     }
   }
 
-  #if compiler(>=6)
+  #if compiler(>=6) && !os(Android)
     extension State.Shared: Sendable where Value: Sendable {}
 
     extension State.SharedReader: Sendable where Value: Sendable {}

@@ -19,7 +19,11 @@ import PerceptionCore
 public struct SharedReader<Value> {
   let box: Box
   #if canImport(SwiftUI)
-    @State private var generation = 0
+    #if os(Android)
+      nonisolated(unsafe) @State private var generation = 0
+    #else
+      @State private var generation = 0
+    #endif
   #endif
 
   var reference: any Reference<Value> {
