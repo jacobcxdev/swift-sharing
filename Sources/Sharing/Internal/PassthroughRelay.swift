@@ -1,8 +1,10 @@
 #if canImport(Combine) || canImport(OpenCombine)
   #if canImport(Combine)
     import Combine
+    private typealias CombineSubscription = CombineSubscription
   #else
     import OpenCombineShim
+    private typealias CombineSubscription = OpenCombineSubscription
   #endif
   import Foundation
 
@@ -10,7 +12,7 @@
     typealias Failure = Never
 
     private let lock: os_unfair_lock_t
-    private var _upstreams: [any Combine.Subscription] = []
+    private var _upstreams: [any CombineSubscription] = []
     private var _downstreams = ContiguousArray<Subscription>()
 
     init() {
@@ -49,7 +51,7 @@
       }
     }
 
-    func send(subscription: any Combine.Subscription) {
+    func send(subscription: any CombineSubscription) {
       lock.withLock { _upstreams.append(subscription) }
       subscription.request(.unlimited)
     }
@@ -62,7 +64,7 @@
       }
     }
 
-    fileprivate final class Subscription: Combine.Subscription, Equatable {
+    fileprivate final class Subscription: CombineSubscription, Equatable {
       private var demand = Subscribers.Demand.none
       private var downstream: (any Subscriber<Output, Never>)?
       private let lock: os_unfair_lock_t
