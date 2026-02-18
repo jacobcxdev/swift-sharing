@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && !os(Android)
+#if canImport(SwiftUI)
   import PerceptionCore
   import SwiftUI
 
@@ -24,6 +24,13 @@
       else {
         #if os(visionOS)
           fatalError("This should be unreachable: visionOS should always support Observation")
+        #elseif os(Android)
+          func open(_ reference: some MutableReference<Value>) -> Binding<Value> {
+            @SwiftUI.Bindable var reference = reference
+            return $reference._wrappedValue as! Binding<Value>
+          }
+          self = open(base.reference)
+          return
         #else
           func open(_ reference: some MutableReference<Value>) -> Binding<Value> {
             @PerceptionCore.Bindable var reference = reference

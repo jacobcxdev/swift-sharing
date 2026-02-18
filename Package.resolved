@@ -1,5 +1,5 @@
 {
-  "originHash" : "dd46026f558fe01dfc0fc50f3333f075db097d39f43da68a66cdac3cd742cc5a",
+  "originHash" : "49425e63a059abd76161a5819bc406e0d25d51b51d46348acd9b15f578a49bf6",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -49,7 +49,7 @@
     {
       "identity" : "swift-custom-dump",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-custom-dump",
+      "location" : "https://github.com/flote-works/swift-custom-dump",
       "state" : {
         "revision" : "2a2a938798236b8fa0bc57c453ee9de9f9ec3ab0",
         "version" : "1.4.1"
@@ -94,10 +94,10 @@
     {
       "identity" : "swift-perception",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-perception",
+      "location" : "https://github.com/flote-works/swift-perception",
       "state" : {
-        "revision" : "4f47ebafed5f0b0172cf5c661454fa8e28fb2ac4",
-        "version" : "2.0.9"
+        "branch" : "flote/service-app",
+        "revision" : "9d6298525bec6dbce4ae44e6e26b842a819932c9"
       }
     },
     {
