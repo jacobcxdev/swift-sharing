@@ -18,12 +18,8 @@ import PerceptionCore
 @propertyWrapper
 public struct SharedReader<Value> {
   let box: Box
-  #if canImport(SwiftUI)
-    #if os(Android)
-      nonisolated(unsafe) @State private var generation = 0
-    #else
-      @State private var generation = 0
-    #endif
+  #if canImport(SwiftUI) && !os(Android)
+    @State private var generation = 0
   #endif
 
   var reference: any Reference<Value> {
@@ -256,7 +252,7 @@ public struct SharedReader<Value> {
       let subject = PassthroughRelay<Value>()
       private var subjectCancellable: AnyCancellable
     #endif
-    #if canImport(SwiftUI)
+    #if canImport(SwiftUI) && !os(Android)
       private var swiftUICancellable: AnyCancellable?
     #endif
     var reference: any Reference<Value> {
@@ -292,11 +288,11 @@ public struct SharedReader<Value> {
       #if canImport(Combine) || canImport(OpenCombine)
         subjectCancellable.cancel()
       #endif
-      #if canImport(SwiftUI)
+      #if canImport(SwiftUI) && !os(Android)
         swiftUICancellable?.cancel()
       #endif
     }
-    #if canImport(SwiftUI)
+    #if canImport(SwiftUI) && !os(Android)
       func subscribe(state: State<Int>) {
         guard #unavailable(iOS 17, macOS 14, tvOS 17, watchOS 10) else { return }
         _ = state.wrappedValue
@@ -359,9 +355,11 @@ extension SharedReader: CustomDumpRepresentable {
 
 #if canImport(SwiftUI)
   extension SharedReader: DynamicProperty {
-    public func update() {
-      box.subscribe(state: _generation)
-    }
+    #if !os(Android)
+      public func update() {
+        box.subscribe(state: _generation)
+      }
+    #endif
   }
 #endif
 
