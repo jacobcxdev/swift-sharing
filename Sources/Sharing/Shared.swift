@@ -4,7 +4,7 @@ import Foundation
 import IdentifiedCollections
 import PerceptionCore
 
-#if canImport(Combine) || canImport(OpenCombine)
+#if canImport(Combine)
   import Combine
 #else
   import OpenCombineShim
