@@ -17,12 +17,12 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/flote-works/combine-schedulers", branch: "flote/service-app"),
+    .package(url: "https://github.com/jacobcxdev/combine-schedulers", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.3.0"),
-    .package(url: "https://github.com/flote-works/swift-custom-dump", from: "1.0.0"),
-    .package(url: "https://github.com/flote-works/swift-dependencies", branch: "flote/service-app"),
+    .package(url: "https://github.com/jacobcxdev/swift-custom-dump", from: "1.0.0"),
+    .package(url: "https://github.com/jacobcxdev/swift-dependencies", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.0.0"),
-    .package(url: "https://github.com/flote-works/swift-perception", branch: "flote/service-app"),
+    .package(url: "https://github.com/jacobcxdev/swift-perception", branch: "flote/service-app"),
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.4.3"),
     .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.0.0"),
   ],
