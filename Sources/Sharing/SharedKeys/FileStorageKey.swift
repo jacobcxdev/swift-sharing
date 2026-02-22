@@ -1,4 +1,4 @@
-#if canImport(AppKit) || canImport(UIKit) || canImport(WatchKit)
+#if canImport(AppKit) || canImport(UIKit) || canImport(WatchKit) || os(Android)
   import CombineSchedulers
   import ConcurrencyExtras
   import Dependencies
@@ -12,6 +12,19 @@
   #endif
   #if canImport(WatchKit)
     import WatchKit
+  #endif
+
+  #if os(Android)
+    // DispatchSource.FileSystemEvent is not available on Android.
+    // Provide a minimal polyfill so FileStorage struct definition compiles.
+    extension DispatchSource {
+      struct FileSystemEvent: OptionSet, Sendable {
+        let rawValue: UInt
+        static let write = FileSystemEvent(rawValue: 1 << 0)
+        static let delete = FileSystemEvent(rawValue: 1 << 1)
+        static let rename = FileSystemEvent(rawValue: 1 << 2)
+      }
+    }
   #endif
 
   extension SharedReaderKey {
@@ -331,47 +344,66 @@
     ///
     /// This is the version of the ``Dependencies/DependencyValues/defaultFileStorage`` dependency
     /// that is used by default when running your app in the simulator or on device.
-    public static let fileSystem = Self(
-      id: AnyHashableSendable(DispatchQueue.main),
-      async: { DispatchQueue.main.async(execute: $0) },
-      asyncAfter: { DispatchQueue.main.asyncAfter(deadline: .now() + $0, execute: $1) },
-      attributesOfItemAtPath: { try FileManager.default.attributesOfItem(atPath: $0) },
-      createDirectory: {
-        try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: $1)
-      },
-      fileExists: { FileManager.default.fileExists(atPath: $0.path) },
-      fileSystemSource: {
-        let fileDescriptor = open($0.path, O_EVTONLY)
-        guard fileDescriptor != -1 else {
-          struct FileDescriptorError: Error {}
-          throw FileDescriptorError()
-        }
-        let source = DispatchSource.makeFileSystemObjectSource(
-          fileDescriptor: fileDescriptor,
-          eventMask: $1,
-          queue: DispatchQueue.main
-        )
-        source.setEventHandler(handler: $2)
-        source.setCancelHandler {
-          close(source.handle)
-        }
-        source.resume()
-        return SharedSubscription {
-          source.cancel()
-        }
-      },
-      load: { url in
-        var data = try Data(contentsOf: url)
-        if data == .stub {
-          data = Data()
+    #if os(Android)
+      public static let fileSystem = Self(
+        id: AnyHashableSendable(DispatchQueue.main),
+        async: { DispatchQueue.main.async(execute: $0) },
+        asyncAfter: { DispatchQueue.main.asyncAfter(deadline: .now() + $0, execute: $1) },
+        attributesOfItemAtPath: { try FileManager.default.attributesOfItem(atPath: $0) },
+        createDirectory: {
+          try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: $1)
+        },
+        fileExists: { FileManager.default.fileExists(atPath: $0.path) },
+        fileSystemSource: { _, _, _ in
+          // No DispatchSource file monitoring on Android — return no-op subscription
+          SharedSubscription {}
+        },
+        load: { url in try Data(contentsOf: url) },
+        save: { data, url in try data.write(to: url, options: .atomic) }
+      )
+    #else
+      public static let fileSystem = Self(
+        id: AnyHashableSendable(DispatchQueue.main),
+        async: { DispatchQueue.main.async(execute: $0) },
+        asyncAfter: { DispatchQueue.main.asyncAfter(deadline: .now() + $0, execute: $1) },
+        attributesOfItemAtPath: { try FileManager.default.attributesOfItem(atPath: $0) },
+        createDirectory: {
+          try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: $1)
+        },
+        fileExists: { FileManager.default.fileExists(atPath: $0.path) },
+        fileSystemSource: {
+          let fileDescriptor = open($0.path, O_EVTONLY)
+          guard fileDescriptor != -1 else {
+            struct FileDescriptorError: Error {}
+            throw FileDescriptorError()
+          }
+          let source = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: fileDescriptor,
+            eventMask: $1,
+            queue: DispatchQueue.main
+          )
+          source.setEventHandler(handler: $2)
+          source.setCancelHandler {
+            close(source.handle)
+          }
+          source.resume()
+          return SharedSubscription {
+            source.cancel()
+          }
+        },
+        load: { url in
+          var data = try Data(contentsOf: url)
+          if data == .stub {
+            data = Data()
+            try data.write(to: url, options: .atomic)
+          }
+          return data
+        },
+        save: { data, url in
           try data.write(to: url, options: .atomic)
         }
-        return data
-      },
-      save: { data, url in
-        try data.write(to: url, options: .atomic)
-      }
-    )
+      )
+    #endif
 
     /// File storage that emulates a file system without actually writing anything to disk.
     ///
