@@ -119,7 +119,7 @@
         }
 
         func request(_ demand: Subscribers.Demand) {
-          precondition(demand > 0, "Demand must be greater than zero")
+          guard demand > 0 else { return }
           lock.lock()
           defer { lock.unlock() }
           guard case .some = downstream else { return }
@@ -186,7 +186,7 @@
         }
 
         func request(_ demand: Subscribers.Demand) {
-          precondition(demand > 0, "Demand must be greater than zero")
+          guard demand > 0 else { return }
           lock.lock()
           defer { lock.unlock() }
           guard case .some = downstream else { return }

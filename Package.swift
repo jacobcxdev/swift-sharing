@@ -17,17 +17,17 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/jacobcxdev/combine-schedulers", branch: "flote/service-app"),
-    .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.3.0"),
-    .package(url: "https://github.com/jacobcxdev/swift-custom-dump", from: "1.0.0"),
-    .package(url: "https://github.com/jacobcxdev/swift-dependencies", branch: "flote/service-app"),
-    .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.0.0"),
-    .package(url: "https://github.com/jacobcxdev/swift-perception", branch: "flote/service-app"),
-    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.4.3"),
+    .package(path: "../combine-schedulers"),
+    .package(path: "../swift-concurrency-extras"),
+    .package(path: "../swift-custom-dump"),
+    .package(path: "../swift-dependencies"),
+    .package(path: "../swift-identified-collections"),
+    .package(path: "../swift-perception"),
+    .package(path: "../xctest-dynamic-overlay"),
     .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.0.0"),
     .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
-    .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.0"),
-    .package(url: "https://source.skip.tools/skip-fuse-ui.git", from: "1.0.0"),
+    .package(path: "../skip-fuse"),
+    .package(path: "../skip-fuse-ui"),
   ],
   targets: [
     .target(
