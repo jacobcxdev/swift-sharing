@@ -4,6 +4,10 @@
   import Dependencies
   @preconcurrency import Dispatch
 
+  #if os(Android)
+    import Foundation
+    import OpenCombineDispatch
+  #endif
   #if canImport(AppKit)
     import AppKit
   #endif
@@ -12,19 +16,6 @@
   #endif
   #if canImport(WatchKit)
     import WatchKit
-  #endif
-
-  #if os(Android)
-    // DispatchSource.FileSystemEvent is not available on Android.
-    // Provide a minimal polyfill so FileStorage struct definition compiles.
-    extension DispatchSource {
-      struct FileSystemEvent: OptionSet, Sendable {
-        let rawValue: UInt
-        static let write = FileSystemEvent(rawValue: 1 << 0)
-        static let delete = FileSystemEvent(rawValue: 1 << 1)
-        static let rename = FileSystemEvent(rawValue: 1 << 2)
-      }
-    }
   #endif
 
   extension SharedReaderKey {
@@ -346,7 +337,7 @@
     /// that is used by default when running your app in the simulator or on device.
     #if os(Android)
       public static let fileSystem = Self(
-        id: AnyHashableSendable(DispatchQueue.main),
+        id: AnyHashableSendable("DispatchQueue.main"),
         async: { DispatchQueue.main.async(execute: $0) },
         asyncAfter: { DispatchQueue.main.asyncAfter(deadline: .now() + $0, execute: $1) },
         attributesOfItemAtPath: { try FileManager.default.attributesOfItem(atPath: $0) },
