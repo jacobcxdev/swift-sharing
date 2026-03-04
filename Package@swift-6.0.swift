@@ -18,7 +18,7 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../combine-schedulers"),
-    .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.3.0"),
+    .package(path: "../swift-concurrency-extras"),
     .package(path: "../swift-custom-dump"),
     .package(path: "../swift-dependencies"),
     .package(path: "../swift-identified-collections"),
